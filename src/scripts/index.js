@@ -53,7 +53,7 @@ function closeModalForms(popup) {
   const popups = document.querySelectorAll('.popup');
   popups.forEach(popup => {
     const closeButtonq = popup.querySelector('.popup__close')
-    closeButtonq.addEventListener('click', () => {closeModal(popup)});
+    closeButtonq.addEventListener('click', () => closeModal(popup));
     popup.addEventListener('click', closeModalClickOverlay);
   });
 }
@@ -78,8 +78,8 @@ function submitEditProfileForm(evt) {
   closeModal(popupTypeEdit);
 }
 
-profileAddButton.addEventListener('click', () => {openModal(popupNewCard)});
-profileEditButton.addEventListener('click', () => {openModal(popupTypeEdit)});
+profileAddButton.addEventListener('click', () => openModal(popupNewCard));
+profileEditButton.addEventListener('click', () => openModal(popupTypeEdit));
 editProfileForm.addEventListener('submit', submitEditProfileForm);
 
 renderCards(initialCards);
