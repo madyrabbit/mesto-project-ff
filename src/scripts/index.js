@@ -1,8 +1,11 @@
 import '../pages/index.css'
 import {initialCards} from '../components/cards.js';
 import {createCard} from '../components/card.js';
-import {openModal, closeModal, openModalImg, closeModalClickOverlay} from '../components/modal.js';
+import {openModal, closeModal, closeModalClickOverlay} from '../components/modal.js';
 
+const popupTypeImage = document.querySelector('.popup_type_image'); 
+const popupImage = document.querySelector('.popup__image');
+const popupCaption = document.querySelector('.popup__caption'); 
 const editProfileForm = document.forms['edit-profile'];
 const placesList = document.querySelector('.places__list');
 const cardName = document.querySelector('.popup__input_type_card-name');
@@ -24,7 +27,7 @@ function renderCards(cards) {
   });
 }
 
-function renderNewPlaceCard() { 
+function setAddCardFormSubmitListener() { 
   const newPlaceForms = document.forms['new-place']; 
   newPlaceForms.addEventListener('submit', createNewPlaceCard); 
 }
@@ -49,11 +52,19 @@ function addNewPlaceCard(cardData) {
   placesList.prepend(card);
 }
 
-function closeModalForms(popup) {
+function openModalImg(cardData) {
+  popupImage.src = cardData.link;
+  popupImage.alt = cardData.name;
+  popupCaption.textContent = cardData.name;
+
+  openModal(popupTypeImage);
+}
+
+function setEventListenersForClosingPopups() {
   const popups = document.querySelectorAll('.popup');
   popups.forEach(popup => {
-    const closeButtonq = popup.querySelector('.popup__close')
-    closeButtonq.addEventListener('click', () => closeModal(popup));
+    const buttonClosePopup = popup.querySelector('.popup__close')
+    buttonClosePopup.addEventListener('click', () => closeModal(popup));
     popup.addEventListener('click', closeModalClickOverlay);
   });
 }
@@ -62,28 +73,24 @@ function fillInProfileFormInputs() {
   nameInput.value = defaultNameInput.textContent;
   jobInput.value = defaultJobInput.textContent;
 }
+fillInProfileFormInputs();
 
 function submitEditProfileForm(evt) {
   evt.preventDefault();
 
   const valueFieldsNameInput = nameInput.value;
   const valueFieldsJobInput = jobInput.value;
-  
-  const fieldElementName = defaultNameInput;
-  const fieldElementJobInput = defaultJobInput;
 
-  fieldElementName.textContent = valueFieldsNameInput;
-  fieldElementJobInput.textContent = valueFieldsJobInput;
+  defaultNameInput.textContent = valueFieldsNameInput;
+  defaultJobInput.textContent = valueFieldsJobInput;
 
   closeModal(popupTypeEdit);
 }
 
-profileAddButton.addEventListener('click', () => openModal(popupNewCard));
+profileAddButton.addEventListener('click', () => openModal(popupNewCard),);
 profileEditButton.addEventListener('click', () => openModal(popupTypeEdit));
 editProfileForm.addEventListener('submit', submitEditProfileForm);
 
 renderCards(initialCards);
-renderNewPlaceCard();
-closeModalForms(popupNewCard);
-closeModalForms(popupTypeEdit);
-fillInProfileFormInputs();
+setAddCardFormSubmitListener();
+setEventListenersForClosingPopups();
