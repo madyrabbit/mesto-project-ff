@@ -1,12 +1,46 @@
 .profile__image {
+  position: relative;
   width: 120px;
   height: 120px;
+  margin: 0 29px 0 0;
   -webkit-border-radius: 50%;
   -moz-border-radius: 50%;
   border-radius: 50%;
-  background-size: cover;
   background-position: center;
-  margin: 0 29px 0 0;
+  background-size: cover;
+}
+
+.profile__image:after,
+.profile__image:before {
+  content: "";
+  position: absolute;
+  opacity: 0;
+  transition: opacity 0.3s;
+  cursor: pointer;
+}
+
+.profile__image::after {
+  inset: 0;
+  border-radius: 50%;
+  background-color: rgba(0, 0, 0, 0.8);
+}
+
+.profile__image:before {
+  top: 50%;
+  left: 50%;
+  z-index: 1;
+  width: 26px;
+  height: 26px;
+  background: url(./../../../images/editing-avatar.svg);
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: cover;
+  transform: translate(-50%, -50%);
+}
+
+.profile__image:hover:after,
+.profile__image:hover:before {
+  opacity: 1;
 }
 
 @media screen and (max-width: 740px) {

@@ -2,7 +2,7 @@ import '../pages/index.css'
 import { createCard } from '../components/card.js';
 import { openModal, closeModal, closeModalClickOverlay } from '../components/modal.js';
 import { enableValidation } from '../components/validation.js';
-import { getUserInfo, getCardList, sendNewCardServer, sendUserProfile, deleteCard } from '../components/api.js';
+import { getUserInfo, getCardList, sendNewCardServer, sendUserProfile, deleteCard, changeAvatar, addLike, deleteLike } from '../components/api.js';
 
 const popupTypeImage = document.querySelector('.popup_type_image');
 const popupImage = document.querySelector('.popup__image');
@@ -13,39 +13,53 @@ const cardUrl = document.querySelector('.popup__input_type_url');
 const profileAddButton = document.querySelector('.profile__add-button');
 const popupNewCard = document.querySelector('.popup_type_new-card');
 const profileEditButton = document.querySelector('.profile__edit-button');
+
 const popupTypeEdit = document.querySelector('.popup_type_edit');
 const formElement = document.querySelector('.popup__form')
+const popupWindowButtonEdit = formElement.querySelector('.popup__button');
 const nameInput = formElement.querySelector('.popup__input_type_name');
 const jobInput = formElement.querySelector('.popup__input_type_description');
+
 const profileImage = document.querySelector('.profile__image');
 const defaultNameInput = document.querySelector('.profile__title');
 const defaultJobInput = document.querySelector('.profile__description');
 const editProfileForm = document.forms['edit-profile'];
 const newPlaceForms = document.forms['new-place'];
+const newPlaceFormsButtonEdit = newPlaceForms.querySelector('.popup__button');
+
+const popupDel = document.querySelector('.popup_delete');
+const popupDelButtonEdit = popupDel.querySelector('.popup__button');
+
+const popupTypeUpdateYourAvatar = document.querySelector('.popup_type_update_user_avatar');
+const buttonSavinguserAvatar = popupTypeUpdateYourAvatar.querySelector('.popup__button');
+const userAvatar = popupTypeUpdateYourAvatar.querySelector('.popup__update_user_avatar');
 
 let userId = null;
 let cardIds = null;
-let onLike = null;
+
+Promise.all([getUserInfo()])
+  .then(([userData]) => {
+    const userName = defaultNameInput.textContent = userData.name;
+    const userAbout = defaultJobInput.textContent = userData.about;
+    profileImage.style.backgroundImage = ('url(' + userData.avatar + ')');
+    fillInProfileFormInputs(userName, userAbout);
+  });
 
 Promise.all([getCardList(), getUserInfo()])
   .then(([cards, userData]) => {
     userId = userData._id;
     cards.reverse().forEach((data) => {
       cardIds = data.owner._id;
-      onLike = data.likes;
       const cardElement = createCard(
-        openModalImg, 
-        data, 
-        onLike, 
-        cardIds, 
+        openModalImg,
+        data,
+        cardIds,
         userId
-        );
+      );
       placesList.prepend(cardElement);
     });
   })
-  .catch((err) => {
-    console.log(err);
-  });
+  .catch((err) => console.log(err));
 
 // Кнопка созраниние новой карточки
 function setAddCardFormSubmitListener() {
@@ -56,34 +70,28 @@ function setAddCardFormSubmitListener() {
 function createNewPlaceCard(evt) {
   evt.preventDefault();
 
-  const cardData = {
-    name: cardName.value,
-    link: cardUrl.value,
-  }
-  
-  onLike = '';
+  const nameCard = cardName.value;
+  const linkCard = cardUrl.value;
 
-  addNewPlaceCard(cardData, onLike);
-  sendNewCardServer(cardData);
+  loadingDataSaving(newPlaceFormsButtonEdit, true);
 
-  cardName.value = '';
-  cardUrl.value = '';
-
-  closeModal(popupNewCard)
+  sendNewCardServer(nameCard, linkCard).then((card) => {
+    const newCardElement = createCard(
+      openModalImg,
+      card,
+      cardIds,
+      userId
+    )
+    placesList.prepend(newCardElement);
+    cardName.value = '';
+    cardUrl.value = '';
+    closeModal(popupNewCard)
+  })
+    .catch((error) => {
+      console.log('Возникла ошибка при отправке данных новой карточки на сервер', error);
+    })
+    .finally(() => loadingDataSaving(newPlaceFormsButtonEdit, false));
 }
-
-// Добавление карточки в список
-function addNewPlaceCard(cardData) {
-  const cardElement = createCard(
-    openModalImg, 
-    cardData, 
-    onLike, 
-    cardIds, 
-    userId
-    );
-  placesList.prepend(cardElement);
-}
-
 // Открытие модального окна с карточкой
 function openModalImg(cardData) {
   popupImage.src = cardData.link;
@@ -93,7 +101,7 @@ function openModalImg(cardData) {
   openModal(popupTypeImage);
 }
 
-// Закрытие popup по клику на рестик
+// Закрытие popup по клику на крестик
 function setEventListenersForClosingPopups() {
   const popups = document.querySelectorAll('.popup');
   popups.forEach(popup => {
@@ -103,26 +111,46 @@ function setEventListenersForClosingPopups() {
   });
 }
 
-
-// Отправить форму редактирования профиля
+// Редактирование информации профеля и закрытие модального окна
 function submitEditProfileForm(evt) {
   evt.preventDefault();
 
   const valueFieldsNameInput = nameInput.value;
   const valueFieldsJobInput = jobInput.value;
 
-  defaultNameInput.textContent = valueFieldsNameInput;
-  defaultJobInput.textContent = valueFieldsJobInput;
+  loadingDataSaving(popupWindowButtonEdit, true);
 
-  sendUserProfile(valueFieldsNameInput, valueFieldsJobInput)
-  closeModal(popupTypeEdit);
+  sendUserProfile(valueFieldsNameInput, valueFieldsJobInput).then((res) => {
+    defaultNameInput.textContent = res.name;
+    defaultJobInput.textContent = res.about;
+    closeModal(popupTypeEdit);
+  })
+    .catch((error) => console.log(error))
+    .finally(() => loadingDataSaving(popupWindowButtonEdit, false))
 }
 
+// Обновления фота профиля
+function updateAvatar() {
+  let linkAvatar = userAvatar.value;
+
+  loadingDataSaving(buttonSavinguserAvatar, true);
+
+  changeAvatar(linkAvatar).then((res) => {
+    profileImage.style.backgroundImage = ('url(' + res.avatar + ')');
+    userAvatar.value = '';
+    closeModal(popupTypeUpdateYourAvatar);
+  })
+    .catch((error) => console.log(error))
+    .finally(() => loadingDataSaving(buttonSavinguserAvatar, false))
+};
+
+// открыть модальное окно с добавлением карточки
 profileAddButton.addEventListener('click', () => {
   openModal(popupNewCard);
   enableValidation();
 });
 
+// Открытие модального окна с редоктированием профиля
 profileEditButton.addEventListener('click', () => {
   openModal(popupTypeEdit);
   enableValidation();
@@ -140,225 +168,60 @@ function fillInProfileFormInputs(NameInput, JobInput) {
 }
 fillInProfileFormInputs();
 
-Promise.all([getUserInfo()])
-.then(([userData]) => {
-  const userName = defaultNameInput.textContent = userData.name;
-  const userAbout = defaultJobInput.textContent = userData.about;
-  profileImage.style.backgroundImage = ('url(' + userData.avatar + ')');
-  fillInProfileFormInputs(userName, userAbout);
-});
+// Карточка которую хотим удалить
+let card = {};
 
-const popupDel = document.querySelector('.popup_delete');
-const popupDeleteButton = popupDel.querySelector('.popup__button');
-
-export function openDeleteModalCard(cardId) {
+// Открытие модального окна с карточкой
+export function openDeleteModalCard({ cardId, cardElement }) {
+  card.cardId = cardId;
+  card.cardElement = cardElement;
   openModal(popupDel);
-  popupDeleteButton.addEventListener("click", () => {
-    confirmDeleteCard(cardId);
+};
+
+// Установка слушателя на кнопку удаление карточки
+popupDelButtonEdit.addEventListener('click', () => confirmDeleteCard());
+
+// Удаление карточки
+function confirmDeleteCard() {
+  deleteCard(card.cardId).then(() => {
+    card.cardElement.remove();
+    closeModal(popupDel);
+    card = {};
   });
 };
 
-function confirmDeleteCard(cardId) {
-  deleteMyCard(cardId);
-  closeModal(popupDel);
+export function toggleLikeCard(cardId, likeCardElement, cardLikeVolume) {
+  const cardLike = likeCardElement.classList.contains('card__like-button_is-active');
+
+  if (cardLike) {
+    deleteLike(cardId)
+  } else {
+    addLike(cardId).then((res) => {
+      console.log(res);
+      if (cardLike) {
+        likeCardElement.classList.remove('card__like-button_is-active');
+      } else {
+        likeCardElement.classList.add('card__like-button_is-active');
+      }
+      cardLikeVolume.textContent = res.likes.length;
+    })
+      .catch((error) => console.error('Ошибка лайка:', error));
+  }
+}
+
+// Открытие модального окна с изменением картинки профиля
+profileImage.addEventListener('click', () => {
+  openModal(popupTypeUpdateYourAvatar);
+  enableValidation();
+});
+
+buttonSavinguserAvatar.addEventListener('click', updateAvatar);
+
+// Изменения текста кнопки сохранения профиля
+const loadingDataSaving = (button, loading) => {
+  if (loading) {
+    button.textContent = 'Сохранение...';
+  } else {
+    button.textContent = 'Сохранить';
+  }
 };
-
-function deleteMyCard(cardId) {
-  console.log(document.getElementById(cardId));
-  console.log(cardId);
-  deleteCard(cardId);
-  document.getElementById(cardId).remove()
-};
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-// Кнопка созраниние новой карточки
-// function setAddCardFormSubmitListener() {
-//   newPlaceForms.addEventListener('submit', createNewPlaceCard);
-// }
-
-
-// const d ='popup__button';
-// Кнопка созраниние новой карточки
-// const popupDel = document.querySelector('.popup_delete');
-// const popupDeleteButton = popupDel.querySelector('.popup__button');
-// function delCard() {
-//   popupDeleteButton.addEventListener('click', cc);
-// }
-// delCard();
-// // Появление дефолтной карточки на страници
-// function renderCards(cards) {
-//   cards.forEach(cardData => {
-//     const card = createCard(cardData, openModalImg);
-//     placesList.prepend(card);
-//   });
-// }popup_delete
-
-
-
-// // Заполнение профиля пользователя
-// function fillProfile() {
-//   fetch('https://nomoreparties.co/v1/wff-cohort-11/users/me', {
-//     headers: {
-//       authorization: '931f9416-6641-4dfc-be73-22f2347fb5c6'
-//     }
-//   })
-//     .then(res => res.json())
-//     .then(data => {
-//       defaultNameInput.textContent = data.name;
-//       defaultJobInput.textContent = data.about;
-//       fillInProfileFormInputs(data.name, data.about)
-//       profileImage.style.backgroundImage = ('url(' + data.avatar + ')');
-//       userId = data._id;
-//       getCardsIdServer(data._id)
-//     })
-// }
-// fillProfile();
-
-
-
-// getCardsIdServer(userId).then(data => {
-//   data.reverse().forEach(data => {
-//     cardId = data.owner._id
-//     card = createCard(data, openModalImg, userId, cardId);
-//     placesList.prepend(card);
-//   });
-// })
-
-
-
-
-
-
-// function loadCards(cardData) {
-//   return new Promise((resolve, reject) => {
-//     resolve ('cardData');
-//   })
-// }
-
-// const getCardsIdServer = () => {
-//   fetch('https://nomoreparties.co/v1/wff-cohort-11/cards', {
-//     headers: {
-//       authorization: '931f9416-6641-4dfc-be73-22f2347fb5c6'
-//     }
-//   })
-//   .then(res => res.json())
-//   .then(data => {
-//     const cardsId = [];
-
-//     data.forEach(data => {
-//       cardsId.push(data.likes);
-//       console.log(data.likes);
-//     });
-//     loadCards(cardsId)
-//   })
-// }
-
-// const promises = [getCardsIdServer];
-
-// Promise.all(promises)
-//   .then(results => {
-//     console.log(results)
-//   });
-
-
-
-
-
-
-
-
-
-
-
-
-// const getCardsIdServer = new Promise((resolve, reject) => {
-//   fetch('https://nomoreparties.co/v1/wff-cohort-11/cards', {
-//     headers: {
-//       authorization: '931f9416-6641-4dfc-be73-22f2347fb5c6'
-//     }
-//   })
-//   .then(res => res.json())
-//   .then(data => {
-//     const cardsId = [];
-
-//     data.forEach(data => {
-//       cardsId.push(data._id);
-//     });
-//   })
-//   .catch(() => console.error('что-то пошло не так'));
-// })
-
-// const getCardsLikeServer = new Promise((resolve, reject) => {
-//   fetch('https://nomoreparties.co/v1/wff-cohort-11/cards', {
-//     headers: {
-//       authorization: '931f9416-6641-4dfc-be73-22f2347fb5c6'
-//     }
-//   })
-//   .then(res => res.json())
-//   .then(data => {
-//     const cardsLikes = [];
-
-//     data.forEach(data => {
-//       cardsLikes.push(data.likes);
-//     });
-//   })
-//   .catch(() => console.error('что-то пошло не так'));
-// })
-
-// const promises = [getCardsIdServer, getCardsLikeServer];
-
-// Promise.all(promises)
-//   .then(results => {
-//     console.log(results)
-//   });
-
-// // Получить карточки с серера
-// const getCardsServer = new Promise((resolve, reject) => {
-//     fetch('https://nomoreparties.co/v1/wff-cohort-11/cards', {
-//       headers: {
-//         authorization: '931f9416-6641-4dfc-be73-22f2347fb5c6'
-//       }
-//     })
-//     .then(res => res.json())
-//     .then(data => {
-//       renderCards(data.reverse());
-//       // console.log(data);
-//     })
-//     .catch(() => console.error('что-то пошло не так'));
-//   })
-
-// // Отправить новую карточку на сервер
-// function sendNewCardServer(cardData) {
-//   fetch('https://nomoreparties.co/v1/wff-cohort-11/cards', {
-//     method: 'POST',
-//     headers: {
-//       authorization: '931f9416-6641-4dfc-be73-22f2347fb5c6',
-//       'Content-Type': 'application/json'
-//     },
-//     body: JSON.stringify({
-//       name: cardData.name,
-//       link: cardData.link,
-//     })
-//   }); 
-// };
