@@ -1,6 +1,5 @@
-import { openDeleteModalCard, toggleLikeCard } from '../scripts/index.js';
-
-export function createCard(openModalImg, cardData, cardIds, userId){
+// Создание карточки
+export function createCard(deleteLike, addLike, openModalImg, openDeleteModalCard, cardData, userId){
   const cardTemplate = document.querySelector('#card-template').content;
   const cardElement = cardTemplate.querySelector('.card').cloneNode(true);
   const cardImageImg = cardElement.querySelector('.card__image');
@@ -12,12 +11,11 @@ export function createCard(openModalImg, cardData, cardIds, userId){
 
   const cardId = cardData._id;
 
-  cardElement.id = cardData._id;
   cardImageImg.src = cardData.link;
   cardImageImg.alt = cardData.name;
   cardImageText.textContent = cardData.name;
 
-  if (cardIds === userId) {
+  if (cardData.owner._id === userId) {
     deleteButton.addEventListener('click', () => openDeleteModalCard({cardId, cardElement}));
   } else {
     deleteButton.remove();
@@ -29,9 +27,32 @@ export function createCard(openModalImg, cardData, cardIds, userId){
   } 
   cardLikeVolume.textContent = cardData.likes.length;
 
-  likeCardButton.addEventListener('click', () => toggleLikeCard(cardId, likeCardButton, cardLikeVolume)); 
+  likeCardButton.addEventListener('click', () => toggleLikeCard(deleteLike, addLike, cardData._id, likeCardButton, cardLikeVolume)); 
 
   cardImageImg.addEventListener('click', () => openModalImg(cardData));
   
   return cardElement
+}
+
+// Удаление карточки
+export function removeCard(card) { 
+  card.cardElement.remove(); 
+} 
+
+// Лайк карточки
+export function toggleLikeCard(deleteLike, addLike, cardId, likeCardElement, cardLikeVolume) {
+  const cardLike = likeCardElement.classList.contains('card__like-button_is-active');
+
+  if (cardLike) {
+    deleteLike(cardId).then((res) => {
+      likeCardElement.classList.remove('card__like-button_is-active');
+      cardLikeVolume.textContent = res.likes.length;
+    });
+  } else {
+    addLike(cardId).then((res) => {
+      likeCardElement.classList.add('card__like-button_is-active');
+      cardLikeVolume.textContent = res.likes.length;
+    })
+    .catch((error) => console.error('Ошибка лайка:', error));
+  }
 }

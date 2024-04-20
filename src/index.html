@@ -38,29 +38,41 @@
       <h3 class="popup__title">Редактировать профиль</h3>
       <form class="popup__form" name="edit-profile" novalidate>
         <input 
-          id="popup__input_type_name" 
-          type="text" name="name" 
-          class="popup__input popup__input_type_name" 
-          placeholder="Имя" 
-          minlength="2" 
-          maxlength="40"  
-          pattern="^[a-zA-Zа-яА-ЯёЁ\- ]+$"
-          data-error-message="Разрешены только латинские, кириллические буквы, знаки дефиса и пробелы"
+          id="name-input"
+          type="text"
+          name="name"
+          class="popup__input popup__input_type_name"
+          placeholder="Имя"
           required
+          minlength="2"
+          maxlength="40"
+          pattern="^[a-zA-Zа-яА-Я\s\-]+$"
+          data-error-message="Разрешены только латинские, кириллические буквы, знаки дефиса и пробелы"
+          aria-describedby="name-input-error"
         />
-        <span class="popup__input_type_name-error form__input-error"></span>
+        <span 
+          id="name-input-error"
+          class="name-input-error popup__error"
+          data-error="name"
+        ></span>
         <input 
-          id="popup__input_type_description" 
-          type="text" name="description" 
-          class="popup__input popup__input_type_description" 
-          placeholder="Занятие" 
-          minlength="2" 
-          maxlength="200"  
-          pattern="^[a-zA-Zа-яА-ЯёЁ\- ]+$"
-          data-error-message="Разрешены только латинские, кириллические буквы, знаки дефиса и пробелы"
+          id="description-input"
+          type="text"
+          name="description"
+          class="popup__input popup__input_type_description"
+          placeholder="Занятие"
           required
+          minlength="2"
+          maxlength="200"
+          pattern="^[a-zA-Zа-яА-Я\s\-]+$"
+          data-error-message="Разрешены только латинские, кириллические буквы, знаки дефиса и пробелы"
+          aria-describedby="description-input-error"
         />
-        <span class="popup__input_type_description-error form__input-error"></span>
+        <span 
+          id="description-input-error"
+          class="description-input-error popup__error"
+          data-error="description"
+        ></span>
         <button type="submit" class="button popup__button">Сохранить</button>
       </form>
     </div>
@@ -71,28 +83,40 @@
       <h3 class="popup__title">Новое место</h3>
       <form class="popup__form" name="new-place" novalidate>
         <input
-          id="popup__input_type_card-name"
-          type="text" 
-          name="place-name" 
-          class="popup__input popup__input_type_card-name" 
+          id="card-name-input"
+          type="text"
+          name="place-name"
+          class="popup__input popup__input_type_card-name"
           placeholder="Название"
-          minlength="2" 
+          minlength="2"
           maxlength="30"
-          pattern="^[a-zA-Zа-яА-ЯёЁ\- ]+$"
+          pattern="^[a-zA-Zа-яА-Я\s\-]+$"
           data-error-message="Разрешены только латинские, кириллические буквы, знаки дефиса и пробелы"
+          aria-describedby="card-name-input-error"
           required
         />
-        <span class="popup__input_type_card-name-error form__input-error"></span>
+        <span 
+          id="card-name-input-error"
+          class="card-name-input-error popup__error"
+          data-error="card-name"
+        ></span>
         <input 
-          id="popup__input_type_url"
-          type="url" 
-          name="link" 
-          class="popup__input popup__input_type_url" 
+          id="url-input"
+          type="url"
+          name="link"
+          class="popup__input popup__input_type_url"
           placeholder="Ссылка на картинку"
+          pattern="^(ftp|http|https):\/\/[^ ]+$"
+          data-error-message="Пожалуйста, введите корректную ссылку"
+          aria-describedby="url-input-error"
           required
         />
-        <span class="popup__input_type_url-error form__input-error"></span>
-        <button type="submit" class="button popup__button">Создать</button>
+        <span 
+          id="url-input-error"
+          class="url-input-error popup__error"
+          data-error="url"
+        ></span>
+        <button type="submit" class="button popup__button">Сохранить</button>
       </form>
     </div>
   </div>
@@ -114,16 +138,23 @@
     <div class="popup__content">
       <button type="button" class="popup__close"></button>
       <h3 class="popup__title">Обновить аватар</h3>
-      <form class="popup__form" name="avatar" novalidate>
+      <form class="popup__form" name="user-avatar" novalidate>
         <input 
-          id="popup__update_user_avatar"
-          type="url" 
-          name="link" 
-          class="popup__input popup__update_user_avatar" 
+          id="url-input"
+          type="url"
+          name="link"
+          class="popup__input popup__update_user_avatar"
           placeholder="Ссылка на картинку"
+          pattern="^(ftp|http|https):\/\/[^ ]+$"
+          data-error-message="Пожалуйста, введите корректную ссылку"
+          aria-describedby="url-input-error"
           required
         />
-        <span class="popup__update_user_avatar-error form__input-error"></span>
+        <span
+          id="url-input-error"
+          class="url-input-error popup__error"
+          data-error="url"
+        ></span>
         <button type="submit" class="button popup__button">Сохранить</button>
       </form>
     </div>

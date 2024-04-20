@@ -1,3 +1,5 @@
+const serverAddress = 'https://nomoreparties.co/v1/wff-cohort-11';
+
 // Запросы к серверу
 const config = {
   headers: {
@@ -16,21 +18,21 @@ const responseFromServer = (res) => {
 
 // Получение информации о пользователе
 export const getUserInfo = () => {
-  return fetch('https://nomoreparties.co/v1/wff-cohort-11/users/me', {
+  return fetch(`${serverAddress}/users/me`, {
       headers: config.headers,
   }).then((res) => responseFromServer(res));
 };
 
 // Получение списка карточек
 export const getCardList = () => {
-  return fetch('https://nomoreparties.co/v1/wff-cohort-11/cards', {
+  return fetch(`${serverAddress}/cards`, {
       headers: config.headers,
   }).then((res) => responseFromServer(res));
 };
 
 // // Отправить новую карточку на сервер
 export const sendNewCardServer = (nameCard, linkCard) => {
-  return fetch('https://nomoreparties.co/v1/wff-cohort-11/cards', {
+  return fetch(`${serverAddress}/cards`, {
     method: 'POST',
     headers: config.headers,
     body: JSON.stringify({
@@ -42,7 +44,7 @@ export const sendNewCardServer = (nameCard, linkCard) => {
 
   // Отправить профиль пользователя на сервер
 export const sendUserProfile = (nameUser, aboutUser) => {
-  return fetch('https://nomoreparties.co/v1/wff-cohort-11/users/me', {
+  return fetch(`${serverAddress}/users/me`, {
     method: 'PATCH',
     headers: config.headers,
     body: JSON.stringify({
@@ -54,7 +56,7 @@ export const sendUserProfile = (nameUser, aboutUser) => {
 
 // Добавление лайка
 export const addLike = (card) => {
-  return fetch(`https://nomoreparties.co/v1/wff-cohort-11/cards/likes/${card}`, {
+  return fetch(`${serverAddress}/cards/likes/${card}`, {
     method: 'PUT',
     headers: config.headers,
   }).then((res) => responseFromServer(res));
@@ -62,7 +64,7 @@ export const addLike = (card) => {
 
 // Удаление лайка
 export const deleteLike = (card) => {
-  return fetch(`https://nomoreparties.co/v1/wff-cohort-11/cards/likes/${card}`, {
+  return fetch(`${serverAddress}/cards/likes/${card}`, {
     method: 'DELETE',
     headers: config.headers,
   }).then((res) => responseFromServer(res));
@@ -70,7 +72,7 @@ export const deleteLike = (card) => {
 
 // Удаление карточки
 export const deleteCard = (card) => {
-  return fetch(`https://nomoreparties.co/v1/wff-cohort-11/cards/${card}`, {
+  return fetch(`${serverAddress}/cards/${card}`, {
     method: 'DELETE',
     headers: config.headers,
   }).then((res) => responseFromServer(res));
@@ -78,7 +80,7 @@ export const deleteCard = (card) => {
 
 // Смена аватара пользователя
 export const changeAvatar = (avatar) => {
-  return fetch('https://nomoreparties.co/v1/wff-cohort-11/users/me/avatar', {
+  return fetch(`${serverAddress}/users/me/avatar`, {
     method: 'PATCH',
     headers: config.headers,
     body: JSON.stringify({
