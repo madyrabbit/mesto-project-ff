@@ -79,7 +79,6 @@ const openEditProfile = () => {
 // Создание новой карточки
 function createNewPlaceCard(evt) {
   evt.preventDefault();
-  disableValidation(newPlaceForms, parametersValidation);
 
   const nameCard = cardName.value;
   const linkCard = cardUrl.value;
@@ -98,7 +97,6 @@ function createNewPlaceCard(evt) {
     placesList.prepend(newCardElement);
 
     closeModal(popupNewCard);
-    disableValidation(formElement ,parametersValidation);
   })
     .catch((error) => {
       console.log('Возникла ошибка при отправке данных новой карточки на сервер', error);

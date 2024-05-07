@@ -47,7 +47,8 @@ export function toggleLikeCard(deleteLike, addLike, cardId, likeCardElement, car
     deleteLike(cardId).then((res) => {
       likeCardElement.classList.remove('card__like-button_is-active');
       cardLikeVolume.textContent = res.likes.length;
-    });
+    })
+    .catch((error) => console.error('Ошибка лайка:', error));
   } else {
     addLike(cardId).then((res) => {
       likeCardElement.classList.add('card__like-button_is-active');
